@@ -1,7 +1,7 @@
 sharepoint-ruby
 ===============
 A ruby client for Sharepoint's REST API.
-Still a work in progress.
+Still a work in progress. Currently, the API is purely read-only. I intent to add features to save, refresh objects, and add/remove objects from a collection.
 
 How to use
 ===============
