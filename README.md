@@ -16,7 +16,7 @@ Note that site.session.authenticate might throw an exception if the authenticati
 The exceptions might be of type ConnectionToStsFailed, AuthenticationFailed, ConnexionToSharepointFailed, UnknownAuthenticationError.
 
 
-Once you're logged in, you may use any method method of Sharepoint's REST API using something such as this:
+Once you're logged in, you may use any method of Sharepoint's REST API using something such as this:
 ```Ruby
 require 'open-uri'
 
