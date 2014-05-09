@@ -12,7 +12,7 @@ module Sharepoint
 
       def self.initialize
         return if @initialized == true
-        @erb          = ERB.new(File.read File.dirname(__FILE__) + '/' + SOURCE)
+        @erb          = ERB.new(::File.read ::File.dirname(__FILE__) + '/' + SOURCE)
         @erb.filename = SOURCE
         @erb.def_method self, 'render()'
         @initialized  = true

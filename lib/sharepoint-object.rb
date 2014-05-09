@@ -10,21 +10,138 @@ unless String.new.methods.include? :underscore
   end
 end
 
+unless String.new.methods.include? :pluralize
+  class String
+    def pluralize
+      if self.match /y$/
+        self.gsub /y$/, 'ies'
+      elsif self.match /us$/
+        self.gsub /us$/, 'i'
+      else
+        self + 's'
+      end
+    end
+  end
+end
+
 module Sharepoint
+  class Site
+  end
+
   class Object
+    attr_accessor :site
+
+    class << self
+      def sharepoint_resource options = {}
+        options[:method_name] ||= (self.name).split('::').last.downcase + 's'
+        options[:getter]      ||= options[:method_name]
+        Sharepoint::Site.send :define_method, options[:method_name] do
+          self.query :get, options[:method_name].to_s
+        end
+        Sharepoint::Site.send :define_method, (self.name).split('::').last.downcase do |id|
+          if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
+            self.query :get, "#{options[:getter]}(guid'#{id}')"
+          else
+            self.query :get, "#{options[:getter]}('#{URI.encode id}')"
+          end
+        end
+      end
+
+      def belongs_to resource_name
+        resource_name = resource_name.to_s
+        klass_name    = (self.name).split('::').last
+        method_name   = klass_name.downcase + 's'
+        define_singleton_method "all_from_#{resource_name}" do |resource|
+          resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}"
+        end
+        define_singleton_method "get_from_#{resource_name}" do |resource, name|
+          resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}('#{URI.encode name}')"
+        end
+      end
+    end
+
     def initialize site, data
-      @site       = site
-      @data       = data
-      @properties = Hash.new
+      @site                      = site
+      @data                      = data
+      @updated_data              = Hash.new
+      @properties                = Hash.new
+      @properties_names          = Array.new
+      @properties_original_names = Array.new
       initialize_properties
     end
 
+    def guid
+      return @guid unless @guid.nil?
+      __metadata['id'].scan /guid'([^']+)'/ do ||
+        @guid = $1
+        break
+      end
+      @guid
+    end
+
+    def available_properties
+      @properties_names.dup
+    end
+
+    def add_property property, value = nil
+      @data[property] = value unless value.nil?
+      unless @properties_original_names.include? property
+        @properties_names          << property.underscore.to_sym
+        @properties_original_names << property
+        define_singleton_method property.underscore do
+          get_property property
+        end
+        define_singleton_method property.underscore + '=' do |new_value|
+          @data[property]         = new_value
+          @updated_data[property] = new_value
+        end
+      end
+    end
+
+    def add_properties properties
+      properties.each do |property|
+        add_property property
+      end
+    end
+
+    def save
+      if @data['__metadata'].nil? or @data['__metadata']['id'].nil?
+        create
+      elsif @updated_data.keys.count > 0
+        update
+      end
+    end
+
+    def destroy
+      @site.query :post, relative_uri do |curl|
+        curl.headers['X-HTTP-Method'] = 'DELETE'
+      end
+    end
+
   private
+    def sharepoint_typename
+      self.class.name.split('::').last
+    end
+
+    def create
+      @site.query :post, sharepoint_typename.pluralize.downcase, @data.to_json do |curl|
+      end
+    end
+
+    def update
+      @site.query :post, relative_uri, @updated_data.to_json do |curl|
+        curl.headers['X-HTTP-Method'] = 'MERGE'
+      end
+      @updated_data = Hash.new
+    end
+
+    def relative_uri
+      @data['__metadata']['uri'].gsub /^https:\/\/[^\/]+\/_api\/web\//i, ''
+    end
+
     def initialize_properties
       @data.each do |key,value|
-        define_singleton_method key.underscore do
-          get_property key
-        end
+        add_property key, value
       end
     end
 
@@ -35,8 +152,10 @@ module Sharepoint
       elsif data.class == Hash
         if not data['__deferred'].nil?
           @properties[property_name] = get_deferred_property property_name
+        elsif not data['__metadata'].nil?
+          @properties[property_name] = @site.make_object_from_data data
         else
-          @properties[property_name] = make_object_from_response({ 'd' => data })
+          @properties[property_name] = data
         end
       elsif not data.nil?
         @properties[property_name]   = data
