@@ -3,6 +3,10 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource getter: 'GetFolderByServerRelativeUrl'
 
+    def file_from_name name
+      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name}')"
+    end
+
     def add_file name, content
       uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{name}')"
       @site.query :post, uri, content
@@ -18,6 +22,7 @@ module Sharepoint
   class File < Sharepoint::Object
     include Sharepoint::Type
     belongs_to :folder
+    sharepoint_resource getter: 'GetFileByServerRelativeUrl', no_root_collection: true
 
     def download
       @site.query :get, "#{__metadata['uri']}/$value"

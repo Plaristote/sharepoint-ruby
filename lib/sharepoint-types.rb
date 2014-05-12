@@ -27,6 +27,7 @@ end
 require 'sharepoint-users'
 require 'sharepoint-lists'
 require 'sharepoint-files'
+require 'sharepoint-fields'
 require 'date'
 
 module Sharepoint

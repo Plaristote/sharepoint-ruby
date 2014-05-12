@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.email        = 'michael@unetresgrossebite.com'
   s.files        = ['lib/sharepoint-ruby.rb',   'lib/sharepoint-session.rb',
                     'lib/sharepoint-object.rb', 'lib/sharepoint-types.rb',
-                    'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb',
+                    'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb', 'lib/sharepoint-fields.rb',
                     'lib/soap/authenticate.xml.erb']
   s.homepage     = 'https://github.com/Plaristote/sharepoint-ruby'
   s.license      = 'BSD'

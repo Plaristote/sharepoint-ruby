@@ -36,6 +36,10 @@ module Sharepoint
       "https://#{@url}/_api/web/"
     end
 
+    def context_info
+      query :get, ''
+    end
+
     def form_digest
       if @web_context.nil? or (not @web_context.is_up_to_date?)
         @getting_form_digest = true
@@ -49,8 +53,8 @@ module Sharepoint
       uri        = if uri =~ /^http/ then uri else api_path + uri end
       arguments  = [ uri ]
       arguments << body if method != :get
-      #puts "Querrying #{uri}"
-      #puts "With body: " + body if method != :get and not body.nil?
+      puts "Querrying #{uri}"
+      puts "With body: " + body if method != :get and not body.nil?
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
         curl.headers["Cookie"]          = @session.cookie
         curl.headers["Accept"]          = "application/json;odata=verbose"
@@ -85,8 +89,12 @@ module Sharepoint
     end
 
     def make_object_from_data data
-      type_name = data['__metadata']['type'].gsub /^SP\./, ''
-      klass     = Sharepoint.const_get type_name rescue raise UnsupportedType.new type_name
+      type_name  = data['__metadata']['type'].gsub /^SP\./, ''
+      type_parts = type_name.split '.'
+      type_name  = type_parts.pop
+      constant   = Sharepoint
+      type_parts.each do |part| constant = constant.const_get part end
+      klass      = constant.const_get type_name rescue raise UnsupportedType.new type_name
       klass.new self, data
     end
   end

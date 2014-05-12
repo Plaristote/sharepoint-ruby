@@ -33,16 +33,17 @@ module Sharepoint
 
     class << self
       def sharepoint_resource options = {}
-        options[:method_name] ||= (self.name).split('::').last.downcase + 's'
-        options[:getter]      ||= options[:method_name]
+        options[:method_name]   ||= (self.name).split('::').last.downcase + 's'
+        options[:getter]        ||= options[:method_name]
+        options[:get_from_name] ||= options[:getter]
         Sharepoint::Site.send :define_method, options[:method_name] do
           self.query :get, options[:method_name].to_s
-        end
+        end unless options[:no_root_collection] == true
         Sharepoint::Site.send :define_method, (self.name).split('::').last.downcase do |id|
           if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
             self.query :get, "#{options[:getter]}(guid'#{id}')"
           else
-            self.query :get, "#{options[:getter]}('#{URI.encode id}')"
+            self.query :get, "#{options[:get_from_name]}('#{URI.encode id}')"
           end
         end
       end
@@ -84,7 +85,10 @@ module Sharepoint
     end
 
     def add_property property, value = nil
-      @data[property] = value unless value.nil?
+      property                = property.to_s
+      @data[property]         = nil   if @data[property].nil?
+      @data[property]         = value unless value.nil?
+      @updated_data[property] = value if @initialize_properties == false
       unless @properties_original_names.include? property
         @properties_names          << property.underscore.to_sym
         @properties_original_names << property
@@ -115,6 +119,7 @@ module Sharepoint
     def destroy
       @site.query :post, relative_uri do |curl|
         curl.headers['X-HTTP-Method'] = 'DELETE'
+        curl.headers['If-Match']      = __metadata['etag']
       end
     end
 
@@ -129,8 +134,10 @@ module Sharepoint
     end
 
     def update
+      @updated_data['__metadata'] ||= @data['__metadata']
       @site.query :post, relative_uri, @updated_data.to_json do |curl|
         curl.headers['X-HTTP-Method'] = 'MERGE'
+        curl.headers['If-Match']      = __metadata['etag']
       end
       @updated_data = Hash.new
     end
@@ -140,9 +147,11 @@ module Sharepoint
     end
 
     def initialize_properties
+      @initialize_properties = true
       @data.each do |key,value|
         add_property key, value
       end
+      @initialize_properties = false
     end
 
     def get_property property_name
@@ -160,7 +169,7 @@ module Sharepoint
       elsif not data.nil?
         @properties[property_name]   = data
       else
-        raise "Property #{property_name} does not exist."
+        @properties[property_name]   = nil
       end
     end
 
