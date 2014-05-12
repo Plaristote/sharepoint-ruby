@@ -89,7 +89,7 @@ module Sharepoint
     end
 
     def make_object_from_data data
-      type_name  = data['__metadata']['type'].gsub /^SP\./, ''
+      type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
       type_parts = type_name.split '.'
       type_name  = type_parts.pop
       constant   = Sharepoint

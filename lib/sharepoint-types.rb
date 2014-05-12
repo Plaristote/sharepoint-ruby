@@ -36,6 +36,18 @@ module Sharepoint
   ##
   class Web < Sharepoint::Object
     include Sharepoint::Type
+
+    field 'CustomMasterUrl'
+    field 'Description'
+    field 'EnableMinimalDownload'
+    field 'MasterUrl'
+    field 'QuickLaunchEnabled'
+    field 'SaveSiteAsTemplateEnabled'
+    field 'SyndicationEnabled'
+    field 'Title'
+    field 'TreeViewEnabled'
+    field 'UiVersion'
+    field 'UiVersionConfigurationEnabled'
   end
 
   class ContextWebInformation < Sharepoint::Object

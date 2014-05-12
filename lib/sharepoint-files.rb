@@ -3,6 +3,9 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource getter: 'GetFolderByServerRelativeUrl'
 
+    field 'WelcomePage'
+    field 'UniqueContentTypeOrder'
+
     def file_from_name name
       @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name}')"
     end

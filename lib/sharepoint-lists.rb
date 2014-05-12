@@ -65,6 +65,33 @@ module Sharepoint
   class List < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'getbytitle'
+
+    field 'ContentTypesEnabled'
+    field 'DefaultContentApprovalWorkflowId'
+    field 'DefaultDisplayFormUrl'
+    field 'DefaultEditFormUrl'
+    field 'DefaultNewFormUrl'
+    field 'Description'
+    field 'Direction'
+    field 'DocumentTemplateUrl'
+    field 'DraftVersionVisibility'
+    field 'EnableAttachment'
+    field 'EnableFolderCreation'
+    field 'EnableMinorVersions'
+    field 'EnableModeration'
+    field 'EnableVersioning'
+    field 'ForceCheckout'
+    field 'Hidden'
+    field 'IrmEnabled'
+    field 'IrmExpire'
+    field 'IrmReject'
+    field 'IsApplicationList'
+    field 'MultipleDataList'
+    field 'NoCrawl'
+    field 'OnQuickLaunch'
+    field 'Title'
+    field 'ValidationFormula'
+    field 'ValidationMessage'
   end
 
   class ListItem < Sharepoint::Object

@@ -32,6 +32,24 @@ module Sharepoint
     attr_accessor :site
 
     class << self
+      attr_accessor :fields
+
+      def fields
+        parent_fields = if self.superclass != Sharepoint::Object
+          self.superclass.fields
+        else
+          []
+        end
+        @fields ||= []
+        parent_fields.concat @fields
+      end
+
+      def field name, options = {}
+        options[:access] ||= [ :read, :write ]
+        @fields ||= []
+        @fields << { name: name, access: options[:access], default: options[:default] }
+      end
+
       def sharepoint_resource options = {}
         options[:method_name]   ||= (self.name).split('::').last.downcase + 's'
         options[:getter]        ||= options[:method_name]
@@ -61,6 +79,8 @@ module Sharepoint
       end
     end
 
+    attr_accessor :data, :updated_data
+
     def initialize site, data
       @site                      = site
       @data                      = data
@@ -85,10 +105,11 @@ module Sharepoint
     end
 
     def add_property property, value = nil
+      editable                = is_property_editable? property
       property                = property.to_s
       @data[property]         = nil   if @data[property].nil?
       @data[property]         = value unless value.nil?
-      @updated_data[property] = value if @initialize_properties == false
+      @updated_data[property] = value if (@initialize_properties == false) and (editable == true)
       unless @properties_original_names.include? property
         @properties_names          << property.underscore.to_sym
         @properties_original_names << property
@@ -98,7 +119,7 @@ module Sharepoint
         define_singleton_method property.underscore + '=' do |new_value|
           @data[property]         = new_value
           @updated_data[property] = new_value
-        end
+        end if editable == true
       end
     end
 
@@ -177,6 +198,13 @@ module Sharepoint
       deferred_data = @data[property_name]['__deferred']
       uri           = deferred_data['uri'].gsub /^http.*\/_api\/web\//i, ''
       @site.query :get, uri
+    end
+
+    def is_property_editable? property_name
+      self.class.fields.each do |field|
+        return field[:access].include? :write if field[:name] == property_name
+      end
+      false
     end
   end
 end
