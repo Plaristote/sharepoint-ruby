@@ -2,6 +2,7 @@ module Sharepoint
   class Field < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource
+    belongs_to :list
 
     field 'DefaultValue'
     field 'Description'
@@ -21,8 +22,8 @@ module Sharepoint
     field 'StaticName'
     field 'Title'
     field 'TypeAsString'
-    field 'ValidationFormula'
-    field 'ValidationMessage'
+    #field 'ValidationFormula'
+    #field 'ValidationMessage'
   end
 
   module Taxonomy
@@ -60,6 +61,18 @@ module Sharepoint
     field 'LookUpWebId'
     field 'PrimaryFieldId'
     field 'RelationshipDeleteBehavior'
+
+    def create_uri
+      unless parent.nil?
+        parent.__metadata['uri'] + '/fields/addfield'
+      else
+        'fields/addfield'
+      end
+    end
+
+    def create
+      @site.query :post, create_uri, { parameters: @data }.to_json
+    end
   end
 
   class FieldUser < FieldLookup
@@ -109,6 +122,5 @@ module Sharepoint
   end
 
   class FieldUrl < Field
-    field 'DisplayFormat'
   end
 end

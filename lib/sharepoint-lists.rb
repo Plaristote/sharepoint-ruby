@@ -66,6 +66,7 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'getbytitle'
 
+    field 'BaseTemplate', access: [ :read, :initialize ]
     field 'ContentTypesEnabled'
     field 'DefaultContentApprovalWorkflowId'
     field 'DefaultDisplayFormUrl'
@@ -102,5 +103,54 @@ module Sharepoint
   class View < Sharepoint::Object
     include Sharepoint::Type
     belongs_to :list
+
+    field 'Aggregations'
+    field 'AggregationStatus'
+    field 'ContentTypeId'
+    field 'DefaultView'
+    field 'DefaultViewForContentType'
+    field 'EditorModified'
+    field 'Formats'
+    field 'Hidden'
+    field 'IncludeRootFolder'
+    field 'JsLink'
+    field 'ListViewXml'
+    field 'Method'
+    field 'MobileDefaultView'
+    field 'MobileView'
+    field 'Paged'
+    field 'RowLimit'
+    field 'Scope'
+    field 'Title'
+    field 'Toolbar'
+    field 'ViewData'
+    field 'ViewJoins'
+    field 'ViewProjectedFields'
+    field 'ViewQuery'
+  end
+
+  class ViewFieldCollection < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource
+    belongs_to :view
+
+    def add_view_field name
+      @site.query :post, "#{__metadata['uri']}/addviewfield('#{URI.encode name}')"
+    end
+
+    def move_view_field_to name, index
+      @site.query :post, "#{__metadata['uri']}/moveviewfieldto", {
+        field: name,
+        index: index
+      }.to_json
+    end
+
+    def remove_all_view_fields
+      @site.query :post, "#{__metadata['uri']}/removeallviewfields"
+    end
+
+    def remove_view_field name
+      @site.query :post, "#{__metadata['uri']}/removeviewfield('#{URI.encode name}')"
+    end
   end
 end

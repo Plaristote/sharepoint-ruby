@@ -6,13 +6,17 @@ require 'sharepoint-types'
 
 module Sharepoint
   class SPException < Exception
-    def initialize data
+    def initialize data, uri = nil, body = nil
       @data = data['error']
+      @uri  = uri
+      @body = body
     end
 
-    def lang    ; @data['message']['lang']  ; end
-    def message ; @data['message']['value'] ; end
-    def code    ; @data['code'] ; end
+    def lang         ; @data['message']['lang']  ; end
+    def message      ; @data['message']['value'] ; end
+    def code         ; @data['code'] ; end
+    def uri          ; @uri ; end
+    def request_body ; @body ; end
   end
 
   class Site
@@ -40,6 +44,9 @@ module Sharepoint
       query :get, ''
     end
 
+    # Sharepoint uses 'X-RequestDigest' as a CSRF security-like.
+    # The form_digest method acquires a token or uses a previously acquired
+    # token if it is still supposed to be valid.
     def form_digest
       if @web_context.nil? or (not @web_context.is_up_to_date?)
         @getting_form_digest = true
@@ -53,8 +60,6 @@ module Sharepoint
       uri        = if uri =~ /^http/ then uri else api_path + uri end
       arguments  = [ uri ]
       arguments << body if method != :get
-      puts "Querrying #{uri}"
-      puts "With body: " + body if method != :get and not body.nil?
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
         curl.headers["Cookie"]          = @session.cookie
         curl.headers["Accept"]          = "application/json;odata=verbose"
@@ -68,9 +73,9 @@ module Sharepoint
 
       begin
         data = JSON.parse result.body_str
-        raise Sharepoint::SPException.new data unless data['error'].nil?
+        raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
         make_object_from_response data
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         result.body_str
       end
     end
@@ -78,7 +83,11 @@ module Sharepoint
     def make_object_from_response data
       if data['d']['results'].nil?
         data['d'] = data['d'][data['d'].keys.first] if data['d']['__metadata'].nil?
-        make_object_from_data data['d']
+        if not data['d'].nil?
+          make_object_from_data data['d']
+        else
+          nil
+        end
       else
         array = Array.new
         data['d']['results'].each do |result|
@@ -88,6 +97,8 @@ module Sharepoint
       end
     end
 
+    # Uses sharepoint's __metadata field to solve which Ruby class to instantiate,
+    # and return the corresponding Sharepoint::Object.
     def make_object_from_data data
       type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
       type_parts = type_name.split '.'
