@@ -1,12 +1,12 @@
 module Sharepoint
   class Group < Sharepoint::Object
     include Sharepoint::Type
-    sharepoint_resource method_name: :sitegroups
+    sharepoint_resource getter: :sitegroups
   end
 
   class User < Sharepoint::Object
     include Sharepoint::Type
-    sharepoint_resource method_name: :siteusers
+    sharepoint_resource getter: :siteusers
     belongs_to :group
   end
 
