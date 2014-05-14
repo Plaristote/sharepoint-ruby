@@ -91,7 +91,7 @@ In the previous paragraph, we saw how to create a Sharepoint::List object. Share
   view               = Sharepoint::View.new site
   view.title         = 'My new view'
   view.personal_view = false
-  view.parent        = list
+  view.parent        = list # Setting the view's parent to the Sharepoint::List
   view.save
 ```
 
