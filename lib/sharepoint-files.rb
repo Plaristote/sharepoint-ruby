@@ -1,3 +1,5 @@
+require 'open-uri'
+
 module Sharepoint
   class Folder < Sharepoint::Object
     include Sharepoint::Type
@@ -26,6 +28,17 @@ module Sharepoint
     include Sharepoint::Type
     belongs_to :folder
     sharepoint_resource getter: 'GetFileByServerRelativeUrl', no_root_collection: true
+
+    def approve comment = '', checkintype = nil
+      params  = "comment='#{URI.encode comment.gsub("'", %q(\\\'))}'"
+      params += ",checkintype=#{checkintype}" unless checkintype.nil?
+      @site.query :post, "#{__metadata['uri']}/approve(#{params})"
+    end
+
+    def deny comment = ''
+      params  = "comment='#{URI.encode comment.gsub("'", %q(\\\'))}'"
+      @site.query :post, "#{__metadata['uri']}/deny(#{params})"
+    end
 
     def download
       @site.query :get, "#{__metadata['uri']}/$value"
