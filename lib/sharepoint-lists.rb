@@ -64,7 +64,7 @@ module Sharepoint
 
   class List < Sharepoint::Object
     include Sharepoint::Type
-    sharepoint_resource get_from_name: 'getbytitle'
+    sharepoint_resource get_from_name: 'lists/getbytitle'
 
     field 'BaseTemplate', access: [ :read, :initialize ]
     field 'ContentTypesEnabled'
