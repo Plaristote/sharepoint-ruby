@@ -15,29 +15,94 @@ site.session.authenticate 'mylogin', 'mypassword'
 Note that site.session.authenticate might throw an exception if the authentication doesn't go well (wrong urls, STS unavailable, or wrong login/password).
 The exceptions might be of type ConnectionToStsFailed, AuthenticationFailed, ConnexionToSharepointFailed, UnknownAuthenticationError.
 
-
-Once you're logged in, you may use any method of Sharepoint's REST API using something such as this:
+Once you're logged in, you may access the site's ressource through the site object:
 ```Ruby
-require 'open-uri'
+fields  = site.fields # Get all the site's fields
+groups  = site.groups # Get all the site's groups
+users   = site.users  # Get all the site's users
 
-directory_path = URI.encode "/site-name/Shared folders"
-result = site.query :get, "GetFolderByServerRelativeUrl('#{directory_path}')"
-```
-Note that you must encode the URL yourself when it's relevant. Open-uri does the job just fine.
-This snippet of code will return a Sharepoint::Object, which is an object mapped with the attributes of the object Sharepoint answered with.
-The mapping converts the attribute's name from Sharepoint's Camelcase to Ruby's more standard snake case. If you want to access to the folders name, instead of using 'result.Name', you'll need to use 'result.name'.
+lists = site.lists # Get all the site's list
+list  = site.list 'Documents' # Get a list by title
+list  = site.list '51925dd7-2108-481a-b1ef-4bfa4e69d48b' # Get a list by guid
+views = list.views # Get all the lists views
 
-It's not yet complete (no save/refresh method), but it does a few things.
-For instance, it will dynamically load any attribute that is set as '__refered' in Sharepoint's answer. This means you can do things such as:
-```Ruby
-require 'open-uri'
-
-directory_path = URI.encode "/site-name/Shared folders"
-result = site.query :get, "GetFolderByServerRelativeUrl('#{directory_path}')"
-result.files.count
+folders = site.folders # Get all the site's folder
+folder  = site.folder 'SiteAssets/documents' # Get a folder by server relative path
+files   = folder.files # Get all the folder's files
 ```
 
-Files aren't directly included in the answer to GetFolderByServerRelativeUrl: however, Sharepoint::Object will lazy-load them if you ask for them.
-Note that since Sharepoint answers with a collection in that case, 'result.files' returns an array of Sharepoint::Object, instead of a Sharepoint::Object.
+### OData mapping
+When Sharepoint answers with an OData object, the `site.query` method will automatically map it to the corresponding Sharepoint::Object class.
+For instance, if Sharepoint answered with an OData object of type 'SP.List', `site.query` will return an instance of the Sharepoint::List class. These classes implement a getter and a setter for all the properties declared for the corresponding object in Sharepoint's 2013 Documentation.
 
-[WIP: In the future, Array will be replaced by an object of our own, Sharepoint::Collection, which will allow to add and remove objects from a collection and save the changes to Sharepoint]
+N.B: Note that the setter only exists if the property is declared as write-accessible in the documentation.
+N.B#2: Note that despite the camel casing used by Sharepoint, the getter and setter are snake cased (i.e: the CustomMasterUrl property becomes accessible through the custom_master_url getter and custom_mater_url= getter).
+
+#### Sharepoint::Object specifics
+Sharepoint::Object contains a few methods to help you handle your objects:
+
+The `guid` method can be used to retrieve the guid of any object.
+
+The `reload` method returns an instance of the same object from the remote sharepoint site. It may be useful if you want to be sure that your object contains the latest changes.
+
+The `save` method will automatically compile your changes and perform the MERGE request with the Sharepoint site.
+
+The `destroy` method will destroy the remote ressource on the Sharepoint site.
+
+The `copy` method can duplicate an existing object. If you send it a Sharepoint::Object as a parameter, it will duplicate into the parameter. If you don't send any parameter, it will create a new object. Note that no changes happen on the sharepoint site until you've called the `save` method on the returned object.
+
+### Deferred objects
+Some of the properties of the OData object are 'deferred', which means that the property only provides a link to a ressource that you would have to get for yourself.
+Not with the sharepoint-ruby gem however: the first time you try to access a deferred property, the object will on it's own go look for the corresponding remote ressource: the result will be stored for later uses, and then be returned to you.
+
+### Modifying Sharepoint's ressources
+The Sharepoint REST API provides us with methods to create, update or delete resources. In the Sharepoint::Object, these behaviours are implemented through the save and delete methods.
+
+This piece of code will change the custom master page used by the Sharepoint site to 'oslo.master':
+```Ruby
+  web = site.context_info # Sharepoint::Site.context_info returns the Web object for the current site (see: http://msdn.microsoft.com/en-us/library/office/dn499819(v=office.15).aspx )
+  web.custom_master_url = '/_catalogs/masterpage/oslo.master'
+  web.save
+```
+
+You may also create your own objects. This will be slightly different: we will create our own instance of a Sharepoint::List object. Some Sharepoint objects have values that can only be set during their creation: sharepoint-ruby doesn't allow you to set these values through a setter. In the case of list, the BaseTemplate attribute can only be set at the creation: to set a value, we will pass it in a hash.
+```Ruby
+  list             = Sharepoint::List.new site, { 'BaseTemplate' => Sharepoint::LIST_TEMPLATE_TYPE[:GenericList] }
+  list.title       = 'My new list'
+  list.description = 'A list created by sharepoint-ruby'
+  list             = list.save # At creation, the remote object created will be returned by the save method.
+```
+Note that the attribute's name in the constructor remains camel cased, unlike the getter and setter of the Sharepoint::Object.
+
+Now, say you want to destroy the list you just created, this will do:
+```Ruby
+  list.destroy
+```
+
+### Parenting
+In the previous paragraph, we saw how to create a Sharepoint::List object. Sharepoint lists aren't parented to any other objects: Sharepoint views however are parented to a list. If you wanted to create a view for the list we just created, you would have to specify a parent to the view:
+
+```Ruby
+  view               = Sharepoint::View.new site
+  view.title         = 'My new view'
+  view.personal_view = false
+  view.parent        = list
+  view.save
+```
+
+### Collections
+In sharepoint-ruby, collections are merely arrays of Sharepoint::Objects. If you wish to add an object to a colleciton, set the parent to the object providing the collection.
+
+### Exceptions
+Inevitably, some of your requests will fail. The object sharepoint returns when an error happens is also mapped by sharepoint-ruby in the Sharepoint::SPException class.
+The SPException class contains methods to inspect the query that was made to the server:
+
+```Ruby
+  begin
+    list = site.list 'title that does not exists'
+  rescue Sharepoint::SPException => e
+    puts "Sharepoint complained about something: #{e.message}"
+    puts "The action that was being executed was: #{e.uri}"
+    puts "The request had a body: #{e.body}" unless e.request_body.nil?
+  end
+```
