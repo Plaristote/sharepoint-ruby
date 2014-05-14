@@ -30,7 +30,7 @@ module Sharepoint
         options[:getter]        ||= options[:method_name]
         options[:get_from_name] ||= options[:getter]
         Sharepoint::Site.send :define_method, options[:method_name] do
-          self.query :get, options[:method_name].to_s
+          self.query :get, options[:getter].to_s
         end unless options[:no_root_collection] == true
         Sharepoint::Site.send :define_method, (self.name).split('::').last.downcase do |id|
           if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
