@@ -58,6 +58,7 @@ Not with the sharepoint-ruby gem however: the first time you try to access a def
 ### Modifying Sharepoint's ressources
 The Sharepoint REST API provides us with methods to create, update or delete resources. In the Sharepoint::Object, these behaviours are implemented through the save and delete methods.
 
+##### Updating objects
 This piece of code will change the custom master page used by the Sharepoint site to 'oslo.master':
 ```Ruby
   web = site.context_info # Sharepoint::Site.context_info returns the Web object for the current site (see: http://msdn.microsoft.com/en-us/library/office/dn499819(v=office.15).aspx )
@@ -65,22 +66,26 @@ This piece of code will change the custom master page used by the Sharepoint sit
   web.save
 ```
 
-You may also create your own objects. This will be slightly different: we will create our own instance of a Sharepoint::List object. Some Sharepoint objects have values that can only be set during their creation: sharepoint-ruby doesn't allow you to set these values through a setter. In the case of list, the BaseTemplate attribute can only be set at the creation: to set a value, we will pass it in a hash.
+##### Creating objects
+You may also create your own objects. This will be slightly different: we will create our own instance of a Sharepoint::List object.
+Some Sharepoint objects have values that can only be set during their initialization: `sharepoint-ruby` doesn't allow you to set these values through a setter.
+In the case of list, Sharepoint will require you to specify the value for the `BaseTemplate` property. This is how you would specify the default value for an attribute that isn't write-accessible:
 ```Ruby
   list             = Sharepoint::List.new site, { 'BaseTemplate' => Sharepoint::LIST_TEMPLATE_TYPE[:GenericList] }
   list.title       = 'My new list'
   list.description = 'A list created by sharepoint-ruby'
   list             = list.save # At creation, the remote object created will be returned by the save method.
 ```
-Note that the attribute's name in the constructor remains camel cased, unlike the getter and setter of the Sharepoint::Object.
+Note that the attribute's name in the constructor remains camel cased (`BaseTemplate`), though the getter for this attribute is still snake cased (`base_template`).
 
-Now, say you want to destroy the list you just created, this will do:
+##### Destroying objects
+Now, say you want to destroy the list you just created, this will do nicely:
 ```Ruby
   list.destroy
 ```
 
 ### Parenting
-In the previous paragraph, we saw how to create a Sharepoint::List object. Sharepoint lists aren't parented to any other objects: Sharepoint views however are parented to a list. If you wanted to create a view for the list we just created, you would have to specify a parent to the view:
+In the previous paragraph, we saw how to create a Sharepoint::List object. Sharepoint lists aren't parented to any other objects: Sharepoint views however are parented to a list. If you wanted to create a view for the list we just created, you would have to specify a parent for the view:
 
 ```Ruby
   view               = Sharepoint::View.new site
@@ -103,6 +108,6 @@ The SPException class contains methods to inspect the query that was made to the
   rescue Sharepoint::SPException => e
     puts "Sharepoint complained about something: #{e.message}"
     puts "The action that was being executed was: #{e.uri}"
-    puts "The request had a body: #{e.body}" unless e.request_body.nil?
+    puts "The request had a body: #{e.request_body}" unless e.request_body.nil?
   end
 ```
