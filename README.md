@@ -26,7 +26,7 @@ list  = site.list '51925dd7-2108-481a-b1ef-4bfa4e69d48b' # Get a list by guid
 views = list.views # Get all the lists views
 
 folders = site.folders # Get all the site's folder
-folder  = site.folder 'SiteAssets/documents' # Get a folder by server relative path
+folder  = site.folder '/SiteAssets/documents' # Get a folder by server relative path
 files   = folder.files # Get all the folder's files
 ```
 
