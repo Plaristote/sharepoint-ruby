@@ -98,6 +98,11 @@ module Sharepoint
   class ListItem < Sharepoint::Object
     include Sharepoint::Type
     belongs_to :list
+
+    method :break_role_inheritance, default_params: ({ copyroleassignements: true })
+    method :recycle
+    method :reset_role_inheritance
+    method :validate_update_item_list
   end
 
   class View < Sharepoint::Object
@@ -127,6 +132,11 @@ module Sharepoint
     field 'ViewJoins'
     field 'ViewProjectedFields'
     field 'ViewQuery'
+
+    method :break_role_inheritance, default_params: ({ copyroleassignements: true })
+    method :recycle
+    method :render_list_form_data
+    method :reserve_list_item_id
   end
 
   class ViewFieldCollection < Sharepoint::Object

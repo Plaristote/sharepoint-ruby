@@ -8,6 +8,8 @@ module Sharepoint
     field 'WelcomePage'
     field 'UniqueContentTypeOrder'
 
+    method :recycle
+
     def file_from_name name
       @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name}')"
     end
@@ -29,20 +31,18 @@ module Sharepoint
     belongs_to :folder
     sharepoint_resource getter: 'GetFileByServerRelativeUrl', no_root_collection: true
 
-    def approve comment = '', checkintype = nil
-      params  = "comment='#{URI.encode comment.gsub("'", %q(\\\'))}'"
-      params += ",checkintype=#{checkintype}" unless checkintype.nil?
-      @site.query :post, "#{__metadata['uri']}/approve(#{params})"
-    end
-
-    def deny comment = ''
-      params  = "comment='#{URI.encode comment.gsub("'", %q(\\\'))}'"
-      @site.query :post, "#{__metadata['uri']}/deny(#{params})"
-    end
-
-    def download
-      @site.query :get, "#{__metadata['uri']}/$value"
-    end
+    method :approve,                     default_params: ({ comment: '' })
+    method :deny,                        default_params: ({ comment: '' })
+    method :checkin,                     default_params: ({ comment: '', checkintype: 0 })
+    method :checkout
+    method :undo_checkout
+    method :copy_to,                     default_params: ({ overwrite: true })
+    method :move_to,                     default_params: ({ flags: 9 })
+    method :get_limited_webpart_manager, default_params: ({ scope: 0 }), http_method: :get
+    method :download, endpoint: '$value',                                http_method: :get
+    method :publish,                     default_params: ({ comment: '' })
+    method :unpublish,                   default_params: ({ comment: '' })
+    method :recycle
 
     def upload data
       @site.query :post, "#{__metadata['uri']}/$value", data do |curl|
