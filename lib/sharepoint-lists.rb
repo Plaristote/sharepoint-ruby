@@ -76,7 +76,7 @@ module Sharepoint
     field 'Direction'
     field 'DocumentTemplateUrl'
     field 'DraftVersionVisibility'
-    field 'EnableAttachment'
+    field 'EnableAttachments'
     field 'EnableFolderCreation'
     field 'EnableMinorVersions'
     field 'EnableModeration'
@@ -110,7 +110,7 @@ module Sharepoint
     belongs_to :list
 
     field 'Aggregations'
-    field 'AggregationStatus'
+    field 'AggregationsStatus'
     field 'ContentTypeId'
     field 'DefaultView'
     field 'DefaultViewForContentType'
@@ -118,7 +118,7 @@ module Sharepoint
     field 'Formats'
     field 'Hidden'
     field 'IncludeRootFolder'
-    field 'JsLink'
+    #field 'JsLink'
     field 'ListViewXml'
     field 'Method'
     field 'MobileDefaultView'
