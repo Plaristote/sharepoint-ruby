@@ -7,6 +7,8 @@ How to use
 First, you'll have to initialize a sharepoint site and open a session in order to start making requests to the REST API:
 
 ```Ruby
+require 'sharepoint-ruby'
+
 site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name'
 site.session.authenticate 'mylogin', 'mypassword'
 ```
