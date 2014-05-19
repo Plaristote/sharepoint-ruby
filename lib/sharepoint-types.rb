@@ -48,6 +48,9 @@ module Sharepoint
     field 'TreeViewEnabled'
     field 'UiVersion'
     field 'UiVersionConfigurationEnabled'
+
+    method :apply_theme
+    method :break_role_inheritance, default_params: ({ clearsubscopes: true })
   end
 
   class ContextWebInformation < Sharepoint::Object
