@@ -39,16 +39,11 @@ module Sharepoint
     method :copy_to,                     default_params: ({ overwrite: true })
     method :move_to,                     default_params: ({ flags: 9 })
     method :get_limited_webpart_manager, default_params: ({ scope: 0 }), http_method: :get
-    method :download, endpoint: '$value',                                http_method: :get
+    method :download,                    endpoint: '$value',             http_method: :get
+    method :upload,                      endpoint: '$value',             http_method: :put
     method :publish,                     default_params: ({ comment: '' })
     method :unpublish,                   default_params: ({ comment: '' })
     method :recycle
-
-    def upload data
-      @site.query :post, "#{__metadata['uri']}/$value", data do |curl|
-        curl.headers['X-HTTP-Method'] = 'PUT'
-      end
-    end
 
     def upload_from_file filename
       content = String.new
@@ -57,6 +52,13 @@ module Sharepoint
         content += line while line = file.gets
       end
       upload content
+    end
+
+    def download_to_file filename
+      content = download
+      ::File.open filename, 'w' do |file|
+        file.write content
+      end
     end
   end
 

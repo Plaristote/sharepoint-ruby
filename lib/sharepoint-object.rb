@@ -31,30 +31,28 @@ module Sharepoint
         method_params[:endpoint]       ||= name.to_s.camelize
         method_params[:default_params] ||= Hash.new
         define_method name, -> (params = Hash.new) do
-          action = "#{__metadata['uri']}/#{name}"
+          action = "#{__metadata['uri']}/#{method_params[:endpoint]}"
           body   = nil
           # Set default parameters
           (method_params[:default_params].each do |key,value|
             params[key] == value if params[key].nil?
           end)
-          if (params.class < Hash) and (params.keys.count > 0)
-            if method_params[:http_method] == :get
-              # if method is get, Fill action with parameters
-              action     += '('
-              (params.each do |key,value|
-                action += ',' unless params.keys.first == key
-                action += key + '='
-                action += (if (value.class < String) or (value.class < Symbol)
-                 "'#{(URI.encode value.gsub("'", %q(\\\')))}'"
-                else
-                  value
-                end)
+          if (method_params[:http_method] == :get) and (params.class < Hash) and (params.keys.count > 0)
+            # if method is get, Fill action with parameters
+            action     += '('
+            (params.each do |key,value|
+              action += ',' unless params.keys.first == key
+              action += key + '='
+              action += (if (value.class < String) or (value.class < Symbol)
+               "'#{(URI.encode value.gsub("'", %q(\\\')))}'"
+              else
+                value
               end)
-              action += ')'
-            else
-              # if method is post, send parameters in the body
-              body = params.to_json
-            end
+            end)
+            action += ')'
+          else
+            # if method is post, send parameters in the body
+            body = (params.class < Hash ? params.to_json : params)
           end
           # Call action
           @site.query method_params[:http_method], action, body
