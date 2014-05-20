@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name         = 'sharepoint-ruby'
-  s.version      = '0.0.1'
-  s.date         = '2014-04-25'
+  s.version      = '0.0.2'
+  s.date         = '2014-05-20'
   s.summary      = 'sharepoint client'
   s.description  = "Client for Sharepoint's REST API"
   s.authors      = ["Michael Martin Moro"]
