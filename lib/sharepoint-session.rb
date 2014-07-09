@@ -2,7 +2,7 @@ require 'erb'
 require 'curb'
 
 module Sharepoint
-  STS_URL = "https://login.microsoftonline.com/extSTS.srf"
+  MICROSOFT_STS_URL = "https://login.microsoftonline.com/extSTS.srf"
 
   module Soap
     class Authenticate
@@ -39,8 +39,9 @@ module Sharepoint
       @site = site
     end
 
-    def authenticate user, password
-      authenticate_to_sts user, password
+    def authenticate user, password, sts_url = nil
+      sts_url ||= MICROSOFT_STS_URL
+      authenticate_to_sts user, password, sts_url
       get_access_token
     end
 
@@ -49,9 +50,9 @@ module Sharepoint
     end
 
   private
-    def authenticate_to_sts user, password
+    def authenticate_to_sts user, password, sts_url
       query    = Soap::Authenticate.new username: user, password: password, url: @site.authentication_path
-      response = Curl::Easy.http_post STS_URL, query.render rescue raise ConnexionToStsFailed.new
+      response = Curl::Easy.http_post sts_url, query.render rescue raise ConnexionToStsFailed.new
 
       response.body_str.scan(/<wsse:BinarySecurityToken[^>]*>([^<]+)</) do
         offset          = ($~.offset 1)
