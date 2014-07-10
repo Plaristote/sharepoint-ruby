@@ -16,6 +16,15 @@ site.session.authenticate 'mylogin', 'mypassword'
 Note that site.session.authenticate might throw an exception if the authentication doesn't go well (wrong urls, STS unavailable, or wrong login/password).
 The exceptions might be of type ConnectionToStsFailed, AuthenticationFailed, ConnexionToSharepointFailed, UnknownAuthenticationError.
 
+### Connecting to your own STS
+By default, sharepoint-ruby uses Microsoft's STS (https://login.microsoftonline.com/extSTS.srf), which works for Sharepoint Online. You may use your own STS by using the optional third parameter of Sharepoint::Site.new:
+
+```Ruby
+site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name', 'https://sts_url.com/extSTS.srf'
+```
+
+### General features
+
 Once you're logged in, you may access the site's ressource through the site object:
 ```Ruby
 fields  = site.fields # Get all the site's fields
