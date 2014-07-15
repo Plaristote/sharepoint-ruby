@@ -29,9 +29,11 @@ module Sharepoint
 
   class Session
     class ConnexionToStsFailed < Exception ; end
-    class AuthenticationFailed < Exception ; end
     class ConnexionToSharepointFailed < Exception; end
     class UnknownAuthenticationError  < Exception; end
+    class AuthenticationFailed < Exception
+      def initialize message ; super message ; end
+    end
 
     attr_accessor :site
 
@@ -58,7 +60,7 @@ module Sharepoint
         offset          = ($~.offset 1)
         @security_token = response.body[offset[0]..offset[1] - 1]
       end
-      raise AuthenticationFailed.new if @security_token.nil?
+      authentication_failed response.body_str if @security_token.nil?
     end
 
     def get_cookie_from_header header, cookie_name
@@ -76,6 +78,15 @@ module Sharepoint
       @rtFa     = get_cookie_from_header http.header_str, 'rtFa'
       @fed_auth = get_cookie_from_header http.header_str, 'FedAuth'
       raise UnknownAuthenticationError.new if @fed_auth.nil? or @rtFa.nil?
+    end
+
+    def authentication_failed xml
+      message   = 'Unknown authentication error'
+      xml.scan(/<psf:text[^>]*>([^<]+)</) do
+        offset  = ($~.offset 1)
+        message = xml[offset[0]..offset[1] - 1]
+      end
+      raise AuthenticationFailed.new message
     end
   end
 end
