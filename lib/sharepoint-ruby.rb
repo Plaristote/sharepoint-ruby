@@ -20,6 +20,7 @@ module Sharepoint
   end
 
   class Site
+    attr_reader   :server_url
     attr_accessor :url
     attr_accessor :session
     attr_accessor :name
@@ -36,8 +37,8 @@ module Sharepoint
       "https://#{@server_url}/_forms/default.aspx?wa=wsignin1.0"
     end
 
-    def api_path
-      "https://#{@url}/_api/web/"
+    def api_path uri
+      "https://#{@url}/_api/web/#{uri}"
     end
 
     def context_info
@@ -57,7 +58,7 @@ module Sharepoint
     end
 
     def query method, uri, body = nil, &block
-      uri        = if uri =~ /^http/ then uri else api_path + uri end
+      uri        = if uri =~ /^http/ then uri else api_path uri end
       arguments  = [ uri ]
       arguments << body if method != :get
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
