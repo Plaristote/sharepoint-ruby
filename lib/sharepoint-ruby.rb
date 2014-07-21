@@ -41,6 +41,10 @@ module Sharepoint
       "https://#{@url}/_api/web/#{uri}"
     end
 
+    def filter_path uri
+      uri
+    end
+
     def context_info
       query :get, ''
     end
@@ -58,7 +62,7 @@ module Sharepoint
     end
 
     def query method, uri, body = nil, &block
-      uri        = if uri =~ /^http/ then uri else api_path uri end
+      uri        = if uri =~ /^http/ then filter_path uri else api_path uri end
       arguments  = [ uri ]
       arguments << body if method != :get
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|

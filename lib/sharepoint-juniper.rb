@@ -18,6 +18,11 @@ module Sharepoint
           define_method :api_path, proc { |uri|
             "#{@session.juniper_url}/_api/web/#{uri}/,DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
           }
+
+          define_method :filter_path, proc { |uri|
+            parts = uri.match /https?:\/\/#{@server_url}(:#{@sharepoint_port})?(.*)/
+            api_path parts[2]
+          }
         end
       end
 
