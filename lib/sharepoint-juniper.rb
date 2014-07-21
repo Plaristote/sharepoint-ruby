@@ -7,7 +7,7 @@ module Sharepoint
   module Juniper
     class Session
       attr_accessor :site
-      attr_accessor :juniper_url
+      attr_accessor :juniper_url, :sharepoint_port
 
       def initialize site
         @site = site
@@ -16,13 +16,14 @@ module Sharepoint
       def update_site_behaviors_for_juniper
         class << @site
           define_method :api_path, proc { |uri|
-            "#{@session.juniper_url}/_api/web/#{uri}/,DanaInfo=#{@server_url},Port=#{38883}"
+            "#{@session.juniper_url}/_api/web/#{uri}/,DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
           }
         end
       end
 
-      def authenticate user, password, domain, juniper_url
-        @juniper_url = juniper_url
+      def authenticate user, password, domain, juniper_url, port
+        @juniper_url     = juniper_url
+        @sharepoint_port = port
         authenticate_to_juniper user, password, domain
         update_site_behaviors_for_juniper
       end
@@ -37,7 +38,7 @@ module Sharepoint
       end
 
       def ensure_sharepoint_initialization user, password, domain
-        query_url = "#{@juniper_url}/,DanaInfo=#{@site.server_url},Port=38883,SSO=U+"
+        query_url = "#{@juniper_url}/,DanaInfo=#{@site.server_url},Port=#{@sharepoint_port},SSO=U+"
         response  = Curl::Easy.http_post query_url do |curl|
           curl.headers["Cookie"] = cookie
           curl.follow_location   = true
@@ -57,7 +58,7 @@ module Sharepoint
             userDomain: domain,
             proxy:      0,
             host:       site.server_url,
-            url:        "/,DanaInfo=#{@site.server_url},Port=38883,SSO=U%2B",
+            url:        "/,DanaInfo=#{@site.server_url},Port=#{@sharepoint_port},SSO=U%2B",
             DANAmethod: nil,
             DANAmvalue: nil,
             proxyhost:  nil,
