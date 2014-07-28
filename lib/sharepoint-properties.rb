@@ -52,7 +52,7 @@ module Sharepoint
         add_property field[:name], field[:default] if field[:access].include? :read
       end
       # Set the values and create any missing properties from the OData object
-      @data.each do |key,value|
+      @data.dup.each do |key,value|
         add_property key, value
       end
       @initialize_properties = false

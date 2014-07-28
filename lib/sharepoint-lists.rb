@@ -66,8 +66,8 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'lists/getbytitle'
 
-    field 'BaseTemplate', access: [ :read, :initialize ]
-    field 'ContentTypesEnabled'
+    field 'BaseTemplate', access: [ :read, :initialize ], default: LIST_TEMPLATE_TYPE[:GenericList]
+    field 'ContentTypesEnabled',                          default: true
     field 'DefaultContentApprovalWorkflowId'
     field 'DefaultDisplayFormUrl'
     field 'DefaultEditFormUrl'
@@ -75,21 +75,21 @@ module Sharepoint
     field 'Description'
     field 'Direction'
     field 'DocumentTemplateUrl'
-    field 'DraftVersionVisibility'
-    field 'EnableAttachments'
-    field 'EnableFolderCreation'
-    field 'EnableMinorVersions'
-    field 'EnableModeration'
-    field 'EnableVersioning'
-    field 'ForceCheckout'
-    field 'Hidden'
-    field 'IrmEnabled'
-    field 'IrmExpire'
-    field 'IrmReject'
-    field 'IsApplicationList'
-    field 'MultipleDataList'
-    field 'NoCrawl'
-    field 'OnQuickLaunch'
+    field 'DraftVersionVisibility', default: 1
+    field 'EnableAttachments',      default: false
+    field 'EnableFolderCreation',   default: true
+    field 'EnableMinorVersions',    default: true
+    field 'EnableModeration',       default: true
+    field 'EnableVersioning',       default: true
+    field 'ForceCheckout',          default: false
+    field 'Hidden',                 default: false
+    field 'IrmEnabled',             default: false
+    field 'IrmExpire',              default: false
+    field 'IrmReject',              default: false
+    field 'IsApplicationList',      default: false
+    field 'MultipleDataList',       default: false
+    field 'NoCrawl',                default: false
+    field 'OnQuickLaunch',          default: false
     field 'Title'
     field 'ValidationFormula'
     field 'ValidationMessage'
