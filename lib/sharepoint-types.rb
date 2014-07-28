@@ -70,6 +70,10 @@ module Sharepoint
     end
   end
 
+  class FeatureCollection < Sharepoint::Object
+    include Sharepoint::Type
+  end
+
   ##
   ## Other types
   ##
