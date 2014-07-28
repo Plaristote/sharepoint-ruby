@@ -55,7 +55,7 @@ module Sharepoint
     def form_digest
       if @web_context.nil? or (not @web_context.is_up_to_date?)
         @getting_form_digest = true
-        @web_context         = query :post, "https://#{@url}/_api/contextinfo"
+        @web_context         = query :post, "https://#{@server_url}/_api/contextinfo"
         @getting_form_digest = false
       end
       @web_context.form_digest_value

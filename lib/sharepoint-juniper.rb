@@ -16,12 +16,14 @@ module Sharepoint
       def update_site_behaviors_for_juniper
         class << @site
           define_method :api_path, proc { |uri|
-            "#{@session.juniper_url}/_api/web/#{uri},DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
+            url = if @name.nil? then @session.juniper_url else "#{@session.juniper_url}/#{@name}" end
+            "#{url}/_api/web/#{uri},DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
           }
 
           define_method :filter_path, proc { |uri|
+            url   = if @name.nil? then @session.juniper_url else "#{@session.juniper_url}/#{@name}" end
             parts = uri.match(/https?:\/\/#{@server_url}(:#{@session.sharepoint_port})?(.*)/)
-            "#{@session.juniper_url}/#{parts[2]},DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
+            "#{url}/#{parts[2]},DanaInfo=#{@server_url},Port=#{@session.sharepoint_port}"
           }
         end
       end
@@ -70,7 +72,9 @@ module Sharepoint
             ssoType:    1,
             action:     'Continue'
           }
-          response = Curl.post "#{@juniper_url}/dana/home/userpass.cgi", params
+          response = Curl.post "#{@juniper_url}/dana/home/userpass.cgi", params do |curl|
+            curl.follow_location = true
+          end
           puts response.header_str
           puts response.body_str
           puts '[Juniper] Sharepoint has been set up'
