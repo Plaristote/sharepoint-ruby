@@ -31,6 +31,7 @@ module Sharepoint
     belongs_to :folder
     sharepoint_resource getter: 'GetFileByServerRelativeUrl', no_root_collection: true
 
+    method :delete,                      endpoint: '', http_method: :delete
     method :approve,                     default_params: ({ comment: '' })
     method :deny,                        default_params: ({ comment: '' })
     method :checkin,                     default_params: ({ comment: '', checkintype: 0 })

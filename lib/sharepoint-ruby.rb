@@ -65,7 +65,7 @@ module Sharepoint
     def query method, uri, body = nil, &block
       uri        = if uri =~ /^http/ then filter_path uri else api_path uri end
       arguments  = [ uri ]
-      arguments << body if method != :get
+      arguments << body unless [ :get, :delete ].include? method
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
         curl.headers["Cookie"]          = @session.cookie
         curl.headers["Accept"]          = "application/json;odata=verbose"
