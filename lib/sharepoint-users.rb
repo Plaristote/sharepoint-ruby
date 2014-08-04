@@ -2,6 +2,8 @@ module Sharepoint
   class Group < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource getter: :sitegroups, get_from_name: 'sitegroups/getbyname'
+
+    def create_uri ; 'sitegroups' ; end
   end
 
   class User < Sharepoint::Object
