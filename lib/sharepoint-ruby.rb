@@ -63,7 +63,7 @@ module Sharepoint
     end
 
     def query method, uri, body = nil, &block
-      uri        = if uri =~ /^http/ then uri else api_path + uri end
+      uri        = if uri =~ /^http/ then uri else api_path(uri) end
       arguments  = [ uri ]
       arguments << body if method != :get
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
