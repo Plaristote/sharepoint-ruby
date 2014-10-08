@@ -13,7 +13,7 @@ unless String.new.methods.include? :underscore
   end
 end
 
-unless String.new.methods.include? :camlize
+unless String.new.methods.include? :camelize
   class String
     def camelize
       self.split("_").each {|s| s.capitalize! }.join("")
