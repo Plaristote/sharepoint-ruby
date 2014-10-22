@@ -9,8 +9,15 @@ First, you'll have to initialize a sharepoint site and open a session in order t
 ```Ruby
 require 'sharepoint-ruby'
 
-site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name'
+site = Sharepoint::Site.new 'mysite.sharepoint.com', 'server-relative-site-url'
 site.session.authenticate 'mylogin', 'mypassword'
+
+blog = SharePoint::Site.new 'mytenant.sharepoint.com', 'sites/blog'
+site.session.authenticate 'user', 'pwd'
+lists = site.lists
+for l in lists
+  puts l.title
+end
 ```
 
 Note that site.session.authenticate might throw an exception if the authentication doesn't go well (wrong urls, STS unavailable, or wrong login/password).
