@@ -11,17 +11,17 @@ module Sharepoint
     method :recycle
 
     def file_from_name name
-      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name}')"
+      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name.to_s}')"
     end
 
     def add_file name, content
-      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{name}')"
+      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{name.to_s}')"
       @site.query :post, uri, content
     end
 
     def add_folder name
       uri  = "#{__metadata['uri']}/folders"
-      body = { '__metadata' => { 'type' => 'SP.Folder' }, 'ServerRelativeUrl' => name }
+      body = { '__metadata' => { 'type' => 'SP.Folder' }, 'ServerRelativeUrl' => name.to_s }
       @site.query :post, uri, body.to_json
     end
   end

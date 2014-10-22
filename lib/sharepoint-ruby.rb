@@ -63,7 +63,7 @@ module Sharepoint
     end
 
     def query method, uri, body = nil, &block
-      uri        = if uri =~ /^http/ then filter_path uri else api_path uri end
+      uri        = if uri =~ /^http/ then filter_path(uri) else api_path(uri) end
       arguments  = [ uri ]
       arguments << body unless [ :get, :delete ].include? method
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
@@ -82,8 +82,8 @@ module Sharepoint
         data = JSON.parse result.body_str
         raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
         make_object_from_response data
-      rescue JSON::ParserError
-        result.body_str
+      rescue JSON::ParserError => e
+        raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
       end
     end
 
