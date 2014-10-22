@@ -74,7 +74,6 @@ module Sharepoint
 
     def get_access_token
       http = Curl::Easy.http_post @site.authentication_path, @security_token
-      raise ConnexionToSharepointFailed.new if http.perform != true
       @rtFa     = get_cookie_from_header http.header_str, 'rtFa'
       @fed_auth = get_cookie_from_header http.header_str, 'FedAuth'
       raise UnknownAuthenticationError.new if @fed_auth.nil? or @rtFa.nil?
