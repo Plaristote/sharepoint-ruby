@@ -11,11 +11,11 @@ module Sharepoint
     method :recycle
 
     def file_from_name name
-      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name.to_s}')"
+      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{URI::encode(name.to_s)}')"
     end
 
     def add_file name, content
-      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{name.to_s}')"
+      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{URI::encode(name.to_s)}')"
       @site.query :post, uri, content
     end
 

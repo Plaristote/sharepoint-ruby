@@ -78,12 +78,14 @@ module Sharepoint
         block.call curl           unless block.nil?
       end
 
-      begin
-        data = JSON.parse result.body_str
-        raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
-        make_object_from_response data
-      rescue JSON::ParserError => e
-        raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+      unless result.body_str.blank?
+        begin
+          data = JSON.parse result.body_str
+          raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
+          make_object_from_response data
+        rescue JSON::ParserError => e
+          raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+        end
       end
     end
 
@@ -112,8 +114,13 @@ module Sharepoint
       type_name  = type_parts.pop
       constant   = Sharepoint
       type_parts.each do |part| constant = constant.const_get part end
-      klass      = constant.const_get type_name rescue raise UnsupportedType.new type_name
-      klass.new self, data
+
+      klass      = constant.const_get type_name rescue nil
+      if klass
+        klass.new self, data
+      else
+        Sharepoint::GenericSharepointObject.new type_name, self, data
+      end
     end
   end
 end

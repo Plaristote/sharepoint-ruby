@@ -148,7 +148,11 @@ module Sharepoint
 
   private
     def sharepoint_typename
-      self.class.name.split('::').last
+      if self.is_a?(Sharepoint::GenericSharepointObject)
+        @generic_type_name
+      else
+        self.class.name.split('::').last
+      end
     end
 
     def resource_uri

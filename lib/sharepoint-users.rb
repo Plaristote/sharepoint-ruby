@@ -23,4 +23,14 @@ module Sharepoint
   class RoleDefinition < Sharepoint::Object
     include Sharepoint::Type
   end
+
+  class GenericSharepointObject < Sharepoint::Object
+    include Sharepoint::Type
+    sharepoint_resource
+
+    def initialize type_name, site, data
+      super site, data
+      @generic_type_name = type_name
+    end
+  end
 end
