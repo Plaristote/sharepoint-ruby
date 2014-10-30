@@ -62,7 +62,7 @@ module Sharepoint
       @web_context.form_digest_value
     end
 
-    def query method, uri, body = nil, &block
+    def query method, uri, body = nil, skip_json=false, &block
       uri        = if uri =~ /^http/ then uri else api_path(uri) end
       arguments  = [ uri ]
       arguments << body if method != :get
@@ -73,12 +73,12 @@ module Sharepoint
           curl.headers["Content-Type"]    = curl.headers["Accept"]
           curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
         end
-        curl.verbose = false
+        curl.verbose = true
         @session.send :curl, curl unless not @session.methods.include? :curl
         block.call curl           unless block.nil?
       end
 
-      unless result.body_str.blank?
+      unless skip_json || result.body_str.blank?
         begin
           data = JSON.parse result.body_str
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
@@ -86,6 +86,8 @@ module Sharepoint
         rescue JSON::ParserError => e
           raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
+      else
+        result.body_str
       end
     end
 
