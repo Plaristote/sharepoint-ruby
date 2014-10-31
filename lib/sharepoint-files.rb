@@ -11,11 +11,11 @@ module Sharepoint
     method :recycle
 
     def file_from_name name
-      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{name.to_s}')"
+      @site.query :get, "#{__metadata['uri']}/files/getbyurl('#{URI::encode(name.to_s)}')"
     end
 
     def add_file name, content
-      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{name.to_s}')"
+      uri = "#{__metadata['uri']}/files/add(overwrite=true,url='#{URI::encode(name.to_s)}')"
       @site.query :post, uri, content
     end
 
@@ -39,7 +39,7 @@ module Sharepoint
     method :copy_to,                     default_params: ({ overwrite: true })
     method :move_to,                     default_params: ({ flags: 9 })
     method :get_limited_webpart_manager, default_params: ({ scope: 0 }), http_method: :get
-    method :download,                    endpoint: '$value',             http_method: :get
+    method :download,                    endpoint: '$value',             http_method: :get, skip_json: true
     method :upload,                      endpoint: '$value',             http_method: :put
     method :publish,                     default_params: ({ comment: '' })
     method :unpublish,                   default_params: ({ comment: '' })
@@ -56,7 +56,7 @@ module Sharepoint
 
     def download_to_file filename
       content = download
-      ::File.open filename, 'w' do |file|
+      ::File.open filename, "w:#{content.encoding.name}" do |file|
         file.write content
       end
     end

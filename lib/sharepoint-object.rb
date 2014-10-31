@@ -55,7 +55,7 @@ module Sharepoint
             body = (params.class < Hash ? params.to_json : params)
           end
           # Call action
-          @site.query method_params[:http_method], action, body
+          @site.query method_params[:http_method], action, body, method_params[:skip_json]
         end
       end
 
@@ -148,7 +148,11 @@ module Sharepoint
 
   private
     def sharepoint_typename
-      self.class.name.split('::').last
+      if self.is_a?(Sharepoint::GenericSharepointObject)
+        @generic_type_name
+      else
+        self.class.name.split('::').last
+      end
     end
 
     def resource_uri
