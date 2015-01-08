@@ -78,7 +78,7 @@ module Sharepoint
         block.call curl           unless block.nil?
       end
 
-      unless skip_json || result.body_str.blank?
+      unless skip_json || (result.body_str.nil? || result.body_str.empty?)
         begin
           data = JSON.parse result.body_str
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
