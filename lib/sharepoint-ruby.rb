@@ -24,6 +24,7 @@ module Sharepoint
     attr_accessor :url, :protocole
     attr_accessor :session
     attr_accessor :name
+    attr_accessor :verbose
 
     def initialize server_url, site_name
       @server_url  = server_url
@@ -32,6 +33,7 @@ module Sharepoint
       @session     = Session.new self
       @web_context = nil
       @protocole   = 'https'
+      @verbose     = false
     end
 
     def authentication_path
@@ -73,7 +75,7 @@ module Sharepoint
           curl.headers["Content-Type"]    = curl.headers["Accept"]
           curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
         end
-        curl.verbose = true
+        curl.verbose = @verbose
         @session.send :curl, curl unless not @session.methods.include? :curl
         block.call curl           unless block.nil?
       end
