@@ -115,6 +115,17 @@ In the previous paragraph, we saw how to create a Sharepoint::List object. Share
 ### Collections
 In sharepoint-ruby, collections are merely arrays of Sharepoint::Objects. If you wish to add an object to a colleciton, set the parent to the object providing the collection.
 
+### List Items
+Sharepoint doesn't allow the user to fetch more than 100 items per query. When your list contains more than a 100 items, you may fetch them using the `item_batch` method:
+
+```Ruby
+  list = site.list 'My List'
+  # Use the skip option to paginate
+  list.item_batch skip: 50 # returns items from 50-150
+  # You may use other operators in your query, such as orderby, select, filter and top:
+  list.item_batch skip: 100, orderby: 'Title asc'
+```
+
 ### Exceptions
 Inevitably, some of your requests will fail. The object sharepoint returns when an error happens is also mapped by sharepoint-ruby in the Sharepoint::SPException class.
 The SPException class contains methods to inspect the query that was made to the server:
