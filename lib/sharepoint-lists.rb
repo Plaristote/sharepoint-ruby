@@ -66,6 +66,17 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'lists/getbytitle'
 
+    def item_batch options = {}
+      url = @data['Items']['__deferred']
+      has_options = false
+      options.each do |key,value|
+        url += if has_options then '&' else '?' end
+        url += "$#{key}=#{URI::encode value.to_s}"
+        has_options = true
+      end
+      @site.query :get, url
+    end
+
     field 'BaseTemplate', access: [ :read, :initialize ], default: LIST_TEMPLATE_TYPE[:GenericList]
     field 'ContentTypesEnabled',                          default: true
     field 'DefaultContentApprovalWorkflowId'
