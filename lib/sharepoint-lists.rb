@@ -66,7 +66,7 @@ module Sharepoint
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'lists/getbytitle'
 
-    def item_batch options = {}
+    def find_items options = {}
       url = @data['Items']['__deferred']
       has_options = false
       options.each do |key,value|
