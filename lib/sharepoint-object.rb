@@ -30,7 +30,7 @@ module Sharepoint
         method_params[:http_method]    ||= :post
         method_params[:endpoint]       ||= name.to_s.camelize
         method_params[:default_params] ||= Hash.new
-        define_method name, -> (params = Hash.new) do
+        define_method name, ->(params = Hash.new) do
           action = "#{__metadata['uri']}/#{method_params[:endpoint]}"
           body   = nil
           # Set default parameters
