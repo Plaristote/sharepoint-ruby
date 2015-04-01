@@ -77,6 +77,10 @@ module Sharepoint
       @site.query :get, url
     end
 
+    def item_count
+      @site.query :get, "#{__metadata['id']}/ItemCount"
+    end
+
     field 'BaseTemplate', access: [ :read, :initialize ], default: LIST_TEMPLATE_TYPE[:GenericList]
     field 'ContentTypesEnabled',                          default: true
     field 'DefaultContentApprovalWorkflowId'
