@@ -68,6 +68,7 @@ module Sharepoint
 
     def find_items options = {}
       url = @data['Items']['__deferred']
+      url = url['uri'] if url.class != String
       has_options = false
       options.each do |key,value|
         url += if has_options then '&' else '?' end
