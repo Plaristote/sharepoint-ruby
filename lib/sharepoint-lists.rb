@@ -62,24 +62,59 @@ module Sharepoint
     MicroFeed: 544 # Is undefined, but used by Sharepoint Online
   }
 
+  module VtiBin
+    def self.translate_field_names input
+      return input unless defined? VtiDisplayNameDictionary
+      hash = Hash.new
+      input.keys.each do |key|
+        if VtiDisplayNameDictionary.keys.include? key
+          hash[VtiDisplayNameDictionary[key]] = input[key]
+        else
+          hash[key] = input[key]
+        end
+      end
+      hash
+    end
+  end
+
   class List < Sharepoint::Object
     include Sharepoint::Type
     sharepoint_resource get_from_name: 'lists/getbytitle'
 
     def find_items options = {}
-      url = @data['Items']['__deferred']
-      url = url['uri'] if url.class != String
-      has_options = false
-      options.each do |key,value|
-        url += if has_options then '&' else '?' end
-        url += "$#{key}=#{URI::encode value.to_s}"
-        has_options = true
-      end
-      @site.query :get, url
+      @site.query :get, (make_item_filter options)
     end
 
     def item_count
       @site.query :get, "#{__metadata['id']}/ItemCount"
+    end
+
+    def add_item attributes
+      attributes['__metadata']         ||= Hash.new
+      attributes['__metadata']['type'] ||= list_item_entity_type_full_name
+      @site.query :post, item_uri, attributes.to_json
+    end
+
+    def add_folder path, attributes
+      path      = path.gsub(/\/*$/, '') # remove slashes at the end of the path
+      site_url  = "#{@site.protocole}://#{@site.server_url}/"
+      action    = "#{site_url}_vti_bin/listdata.svc/#{self.title}"
+      path      = root_folder.server_relative_url + '/' + path
+      attributes['ContentTypeID'] ||= '0x01200059042D1A09191046851FA83D5B89816A'
+      attributes['Path']          ||= path
+      payload                       = VtiBin.translate_field_names(attributes).to_json
+      # Create the item using _vti_bin api
+      response = @site.query :post, action, payload, true do |curl|
+        curl.headers['Slug'] = "#{path}/#{attributes['Title']}|0x0120"
+      end
+      response = JSON.parse response
+      unless response['d'].nil?
+        # Fetch the item we just created using the REST api
+        item_id = response['d']['ID']
+        @site.query :get, "#{site_url}_api/#{__metadata['id']}/items(#{item_id})"
+      else
+        response
+      end
     end
 
     field 'BaseTemplate', access: [ :read, :initialize ], default: LIST_TEMPLATE_TYPE[:GenericList]
@@ -109,6 +144,23 @@ module Sharepoint
     field 'Title'
     field 'ValidationFormula'
     field 'ValidationMessage'
+
+  private
+    def item_uri
+      url = @data['Items']['__deferred']
+      url = url['uri'] if url.class != String
+      url
+    end
+
+    def make_item_filter options = {}
+      url         = item_uri
+      has_options = false
+      options.each do |key,value|
+        url += if has_options then '&' else '?' end
+        url += "$#{key}=#{URI::encode value.to_s}"
+        has_options = true
+      end
+    end
   end
 
   class ListItem < Sharepoint::Object
