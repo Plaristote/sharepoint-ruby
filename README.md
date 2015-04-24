@@ -30,6 +30,18 @@ By default, sharepoint-ruby uses Microsoft's STS (https://login.microsoftonline.
 site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name', 'https://sts_url.com/extSTS.srf'
 ```
 
+### Connecting using NTLM
+You may also connect using the NTLM method. For that purpose, you'll have to overwrite the default session handler with `Sharepoint::HttpAuth::Session`.
+
+```Ruby
+require 'sharepoint-http-auth'
+
+site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name'
+site.session = Sharepoint::HttpAuth::Session.new site
+site.session.authenticate 'login', 'password'
+site.protocole = 'http' # default protocole is https: don't forget to set this if you use http.
+```
+
 ### General features
 
 Once you're logged in, you may access the site's ressource through the site object:
