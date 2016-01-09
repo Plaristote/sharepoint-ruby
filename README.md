@@ -27,7 +27,8 @@ The exceptions might be of type ConnectionToStsFailed, AuthenticationFailed, Con
 By default, sharepoint-ruby uses Microsoft's STS (https://login.microsoftonline.com/extSTS.srf), which works for Sharepoint Online. You may use your own STS by using the optional third parameter of Sharepoint::Site.new:
 
 ```Ruby
-site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name', 'https://sts_url.com/extSTS.srf'
+site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name'
+site.session.authenticate  'username', 'password', 'https://sts_url.com/extSTS.srf'
 ```
 
 ### Connecting using NTLM
