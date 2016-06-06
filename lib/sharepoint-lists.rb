@@ -160,6 +160,7 @@ module Sharepoint
         url += "$#{key}=#{URI::encode value.to_s}"
         has_options = true
       end
+      url
     end
   end
 
