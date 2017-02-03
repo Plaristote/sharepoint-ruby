@@ -11,7 +11,8 @@ Gem::Specification.new do |s|
                     'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb', 'lib/sharepoint-fields.rb',
                     'lib/sharepoint-stringutils.rb',
                     'lib/soap/authenticate.xml.erb',
-                    'lib/sharepoint-http-auth.rb']
+                    'lib/sharepoint-http-auth.rb',
+                    'lib/sharepoint-kerberos-auth.rb']
   s.homepage     = 'https://github.com/Plaristote/sharepoint-ruby'
   s.license      = 'BSD'
   s.require_path = 'lib'

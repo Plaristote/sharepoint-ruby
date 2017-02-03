@@ -43,6 +43,19 @@ site.session.authenticate 'login', 'password'
 site.protocole = 'http' # default protocole is https: don't forget to set this if you use http.
 ```
 
+### Connecting using Kerberos
+You may also connect using Kerberos if you're using *MIT Kerberos*. 
+For that purpose, you'll have to overwrite the default session handler with `Sharepoint::KerberosAuth::Session`.
+
+```Ruby
+require 'sharepoint-kerberos-auth'
+
+site = Sharepoint::Site.new 'mysite.sharepoint.com', 'site-name'
+site.session = Sharepoint::KerberosAuth::Session.new site
+site.session.authenticate 'login', 'password'
+site.protocole = 'http' # default protocole is https: don't forget to set this if you use http.
+```
+
 ### General features
 
 Once you're logged in, you may access the site's ressource through the site object:
