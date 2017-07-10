@@ -12,9 +12,9 @@ require 'sharepoint-ruby'
 site = Sharepoint::Site.new 'mysite.sharepoint.com', 'server-relative-site-url'
 site.session.authenticate 'mylogin', 'mypassword'
 
-blog = SharePoint::Site.new 'mytenant.sharepoint.com', 'sites/blog'
-site.session.authenticate 'user', 'pwd'
-lists = site.lists
+blog = Sharepoint::Site.new 'mytenant.sharepoint.com', 'sites/blog'
+blog.session.authenticate 'user', 'pwd'
+lists = blog.lists
 for l in lists
   puts l.title
 end
