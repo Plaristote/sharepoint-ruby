@@ -114,6 +114,8 @@ module Sharepoint
     # and return the corresponding Sharepoint::Object.
     def make_object_from_data data
       type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
+                                             .gsub(/^Collection\(Edm\.String\)/, 'CollectionString')
+                                             .gsub(/^Collection\(Edm\.Int32\)/, 'CollectionInteger')
       type_parts = type_name.split '.'
       type_name  = type_parts.pop
       constant   = Sharepoint
