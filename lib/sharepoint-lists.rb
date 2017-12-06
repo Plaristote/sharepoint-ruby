@@ -97,7 +97,7 @@ module Sharepoint
 
     def add_folder path, attributes
       path      = path.gsub(/\/*$/, '') # remove slashes at the end of the path
-      site_url  = "#{@site.protocole}://#{@site.server_url}/"
+      site_url  = "#{@site.protocol}://#{@site.server_url}/"
       action    = "#{site_url}_vti_bin/listdata.svc/#{self.title}"
       path      = root_folder.server_relative_url + '/' + path
       attributes['ContentTypeID'] ||= '0x01200059042D1A09191046851FA83D5B89816A'
