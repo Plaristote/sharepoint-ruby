@@ -74,12 +74,12 @@ module Sharepoint
         if method != :get
           curl.headers["Content-Type"]    = curl.headers["Accept"]
           curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
+          curl.headers["Authorization"] = "Bearer " + form_digest unless @getting_form_digest == true          
         end
         curl.verbose = @verbose
         @session.send :curl, curl unless not @session.methods.include? :curl
         block.call curl           unless block.nil?
       end
-
       unless skip_json || (result.body_str.nil? || result.body_str.empty?)
         begin
           data = JSON.parse result.body_str
