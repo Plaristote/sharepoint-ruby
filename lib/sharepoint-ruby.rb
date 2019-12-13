@@ -128,6 +128,10 @@ module Sharepoint
       klass      = constant.const_get type_name rescue nil
       if klass
         klass.new self, data
+      # Patch for Sharepoint 2013 on-prem, missing period between list name
+      # and object type.
+      elsif data['__metadata']['type'] =~ /SP\.Data\..+Item/
+        Sharepoint::ListItem.new self, data
       else
         Sharepoint::GenericSharepointObject.new type_name, self, data
       end
