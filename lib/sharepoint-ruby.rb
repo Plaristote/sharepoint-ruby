@@ -17,6 +17,10 @@ module Sharepoint
     def code         ; @data['code'] ; end
     def uri          ; @uri ; end
     def request_body ; @body ; end
+
+    def inspect
+      "#<Sharepoint::SPException: #{{'error'=>@data}}>"
+    end
   end
 
   class Site
