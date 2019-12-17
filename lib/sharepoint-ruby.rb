@@ -117,6 +117,8 @@ module Sharepoint
     # Uses sharepoint's __metadata field to solve which Ruby class to instantiate,
     # and return the corresponding Sharepoint::Object.
     def make_object_from_data data
+      return data unless data.is_a? Hash
+
       type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
                                              .gsub(/^Collection\(Edm\.String\)/, 'CollectionString')
                                              .gsub(/^Collection\(Edm\.Int32\)/, 'CollectionInteger')
