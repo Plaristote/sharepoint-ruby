@@ -35,18 +35,43 @@ module Sharepoint
         if data['d']['results'].nil?
           data['d'] = data['d'][data['d'].keys.first] if data['d']['__metadata'].nil?
           if not data['d'].nil?
-            instance.make_object_from_data data['d']
+            make_object_from_data instance, data['d']
           else
             nil
           end
         else
           array = Array.new
           data['d']['results'].each do |result|
-            array << (instance.make_object_from_data result)
+            array << (make_object_from_data instance, result)
           end
           array
         end
       end
+
+      # Uses sharepoint's __metadata field to solve which Ruby class to instantiate,
+    # and return the corresponding Sharepoint::Object.
+    def make_object_from_data instance, data
+      return data unless data.is_a? Hash
+
+      type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
+                                             .gsub(/^Collection\(Edm\.String\)/, 'CollectionString')
+                                             .gsub(/^Collection\(Edm\.Int32\)/, 'CollectionInteger')
+      type_parts = type_name.split '.'
+      type_name  = type_parts.pop
+      constant   = Sharepoint
+      type_parts.each do |part| constant = constant.const_get part end
+
+      klass      = constant.const_get type_name rescue nil
+      if klass
+        klass.new instance, data
+      # Patch for Sharepoint 2013 on-prem, missing period between list name
+      # and object type.
+      elsif data['__metadata']['type'] =~ /SP\.Data\..+Item/
+        Sharepoint::ListItem.new instance, data
+      else
+        Sharepoint::GenericSharepointObject.new type_name, instance, data
+      end
+    end
     end
 
     def initialize server_url, site_name
@@ -113,31 +138,6 @@ module Sharepoint
         end
       else
         result.body_str
-      end
-    end
-
-    # Uses sharepoint's __metadata field to solve which Ruby class to instantiate,
-    # and return the corresponding Sharepoint::Object.
-    def make_object_from_data data
-      return data unless data.is_a? Hash
-
-      type_name  = data['__metadata']['type'].gsub(/^SP\./, '')
-                                             .gsub(/^Collection\(Edm\.String\)/, 'CollectionString')
-                                             .gsub(/^Collection\(Edm\.Int32\)/, 'CollectionInteger')
-      type_parts = type_name.split '.'
-      type_name  = type_parts.pop
-      constant   = Sharepoint
-      type_parts.each do |part| constant = constant.const_get part end
-
-      klass      = constant.const_get type_name rescue nil
-      if klass
-        klass.new self, data
-      # Patch for Sharepoint 2013 on-prem, missing period between list name
-      # and object type.
-      elsif data['__metadata']['type'] =~ /SP\.Data\..+Item/
-        Sharepoint::ListItem.new self, data
-      else
-        Sharepoint::GenericSharepointObject.new type_name, self, data
       end
     end
   end

@@ -66,7 +66,7 @@ module Sharepoint
         if not data['__deferred'].nil?
           @properties[property_name] = get_deferred_property property_name
         elsif not data['__metadata'].nil?
-          @properties[property_name] = @site.make_object_from_data data
+          @properties[property_name] = @site.class.make_object_from_data @site, data
         else
           @properties[property_name] = data
         end
@@ -86,7 +86,7 @@ module Sharepoint
     def is_property_editable? property_name
       # We don't know a priori what the fields are for a generic object, so leave the validation work to the user
       return true if self.is_a?(GenericSharepointObject)
-        
+
       self.class.fields.each do |field|
         return field[:access].include? :write if field[:name] == property_name
       end
