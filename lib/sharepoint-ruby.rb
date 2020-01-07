@@ -30,6 +30,25 @@ module Sharepoint
     attr_accessor :name
     attr_accessor :verbose
 
+    class << self
+      def make_object_from_response instance, data
+        if data['d']['results'].nil?
+          data['d'] = data['d'][data['d'].keys.first] if data['d']['__metadata'].nil?
+          if not data['d'].nil?
+            instance.make_object_from_data data['d']
+          else
+            nil
+          end
+        else
+          array = Array.new
+          data['d']['results'].each do |result|
+            array << (instance.make_object_from_data result)
+          end
+          array
+        end
+      end
+    end
+
     def initialize server_url, site_name
       @server_url  = server_url
       @name        = site_name
@@ -88,29 +107,12 @@ module Sharepoint
         begin
           data = JSON.parse result.body_str
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
-          make_object_from_response data
+          self.class.make_object_from_response self, data
         rescue JSON::ParserError => e
           raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
       else
         result.body_str
-      end
-    end
-
-    def make_object_from_response data
-      if data['d']['results'].nil?
-        data['d'] = data['d'][data['d'].keys.first] if data['d']['__metadata'].nil?
-        if not data['d'].nil?
-          make_object_from_data data['d']
-        else
-          nil
-        end
-      else
-        array = Array.new
-        data['d']['results'].each do |result|
-          array << (make_object_from_data result)
-        end
-        array
       end
     end
 
