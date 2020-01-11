@@ -65,5 +65,16 @@ module Sharepoint
   class FileVersion < Sharepoint::Object
     include Sharepoint::Type
     belongs_to :file
+
+    ##
+    # created_by is taken an I can't seem to override it.
+    def creator
+      _, number, library_path = url.split('/', 3)
+      server_path = URI::encode("/#{site.name}/#{library_path}")
+      @site.query(
+        :get,
+        "GetFileByServerRelativeUrl('#{server_path}')/Versions(#{number})/CreatedBy"
+      )
+    end
   end
 end
