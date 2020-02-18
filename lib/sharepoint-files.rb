@@ -70,7 +70,7 @@ module Sharepoint
     # created_by is taken an I can't seem to override it.
     def creator
       _, number, library_path = url.split('/', 3)
-      server_path = URI::encode("/#{site.name}/#{library_path}")
+      server_path = URI::encode("/#{site.name}/#{library_path}").gsub(/'/, '%27%27')
       @site.query(
         :get,
         "GetFileByServerRelativeUrl('#{server_path}')/Versions(#{number})/CreatedBy"
