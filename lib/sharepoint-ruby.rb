@@ -80,7 +80,7 @@ module Sharepoint
         @session.send :curl, curl unless not @session.methods.include? :curl
         block.call curl           unless block.nil?
       end
-      unless skip_json || (result.body_str.nil? || result.body_str.empty?)
+      if !(skip_json || (result.body_str.nil? || result.body_str.empty?))
         begin
           data = JSON.parse result.body_str
           raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
@@ -88,6 +88,8 @@ module Sharepoint
         rescue JSON::ParserError => e
           raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
+      elsif result.status.to_i >= 400
+        raise Exception.new("#{method.to_s.upcase} #{uri} responded with #{result.status}")
       else
         result.body_str
       end
