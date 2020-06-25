@@ -1,18 +1,6 @@
 require 'sharepoint-object'
 
 module Sharepoint
-  class UnsupportedType < ::Exception
-    attr_accessor :type_name
-
-    def initialize type_name
-      @type_name = type_name
-    end
-
-    def message
-      "unsupported type '#{@type_name}'"
-    end
-  end
-
   module Type
     def initialize site, data = nil
       data               ||= Hash.new

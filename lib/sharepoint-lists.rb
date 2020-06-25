@@ -113,7 +113,7 @@ module Sharepoint
         item_id = response['d']['ID']
         @site.query :get, "#{site_url}_api/#{__metadata['id']}/items(#{item_id})"
       else
-        raise Sharepoint::SPException.new response, action, payload
+        raise Sharepoint::DataError.new response, action, payload
       end
     end
 
