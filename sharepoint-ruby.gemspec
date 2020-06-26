@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name         = 'sharepoint-ruby'
-  s.version      = '0.1.0'
-  s.date         = '2017-12-06'
+  s.version      = '0.1.1'
+  s.date         = '2020-02-11'
   s.summary      = 'sharepoint client'
   s.description  = "Client for Sharepoint's REST API"
   s.authors      = ["Michael Martin Moro"]
@@ -17,5 +17,5 @@ Gem::Specification.new do |s|
   s.license      = 'BSD'
   s.require_path = 'lib'
 
-  s.add_runtime_dependency 'curb', '~> 0.8', '<= 0.8.6'
+  s.add_runtime_dependency 'curb', '~> 0.8', '<= 0.9.10'
 end
