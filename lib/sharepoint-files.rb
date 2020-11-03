@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'securerandom'
 
 module Sharepoint
   class Folder < Sharepoint::Object
@@ -23,6 +24,12 @@ module Sharepoint
       uri  = "#{__metadata['uri']}/folders"
       body = { '__metadata' => { 'type' => 'SP.Folder' }, 'ServerRelativeUrl' => name.to_s }
       @site.query :post, uri, body.to_json
+    end
+
+    def add_file_via_streaming name, file
+      add_file name, nil
+      spo_file = file_from_name name
+      spo_file.upload_file_via_streaming file
     end
   end
 
@@ -59,6 +66,24 @@ module Sharepoint
       ::File.open filename, "w:#{content.encoding.name}" do |file|
         file.write content
       end
+    end
+
+    def upload_file_via_streaming file
+      uuid = SecureRandom.uuid
+      bytes_written = 0
+      ::File.open(file) do |fh|
+        while data = fh.read(10 * 1024 * 1024) do
+          uri = (bytes_written == 0) ? "#{__metadata['uri']}/startupload(uploadId=guid'#{uuid}')" : "#{__metadata['uri']}/continueupload(uploadId=guid'#{uuid}',fileOffset=#{bytes_written})"
+          result = @site.query :post, uri, data, skip_json: true
+          new_position = (JSON.parse(result).dig('d', 'ContinueUpload') || JSON.parse(result).dig('d', 'StartUpload')).to_i
+          bytes_written += data.size
+          if new_position != bytes_written
+            raise Exception.new("Streamed #{bytes_written} bytes data, but sharepoint reports position #{new_position}")
+          end
+        end
+      end
+      uri = "#{__metadata['uri']}/finishupload(uploadId=guid'#{uuid}',fileOffset=#{bytes_written})"
+      result = @site.query :post, uri, nil, skip_json: true
     end
   end
 
