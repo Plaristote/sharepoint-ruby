@@ -125,6 +125,7 @@ module Sharepoint
           if session.instance_of?(Sharepoint::HttpAuth::Session)
             curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
           else
+            curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
             curl.headers["Authorization"] = "Bearer " + form_digest unless @getting_form_digest == true
           end
         end
