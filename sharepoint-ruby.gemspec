@@ -1,14 +1,21 @@
 Gem::Specification.new do |s|
   s.name         = 'sharepoint-ruby'
   s.version      = '0.1.1'
-  s.date         = '2020-02-11'
+  s.date         = '2020-11-17'
   s.summary      = 'sharepoint client'
   s.description  = "Client for Sharepoint's REST API"
-  s.authors      = ["Michael Martin Moro"]
+  s.authors      = ['Michael Martin Moro']
   s.email        = 'michael@unetresgrossebite.com'
-  s.files        = ['lib/sharepoint-ruby.rb',   'lib/sharepoint-session.rb',
-                    'lib/sharepoint-object.rb', 'lib/sharepoint-types.rb', 'lib/sharepoint-properties.rb',
-                    'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb', 'lib/sharepoint-fields.rb',
+  s.files        = ['lib/sharepoint-ruby.rb',
+                    'lib/sharepoint-error.rb',
+                    'lib/sharepoint-session.rb',
+                    'lib/sharepoint-object.rb',
+                    'lib/sharepoint-types.rb',
+                    'lib/sharepoint-properties.rb',
+                    'lib/sharepoint-users.rb',
+                    'lib/sharepoint-lists.rb',
+                    'lib/sharepoint-files.rb',
+                    'lib/sharepoint-fields.rb',
                     'lib/sharepoint-stringutils.rb',
                     'lib/soap/authenticate.xml.erb',
                     'lib/sharepoint-http-auth.rb',
