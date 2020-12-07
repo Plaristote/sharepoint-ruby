@@ -1,28 +1,24 @@
-Gem::Specification.new do |s|
-  s.name         = 'sharepoint-ruby'
-  s.version      = '0.1.1'
-  s.date         = '2020-11-17'
-  s.summary      = 'sharepoint client'
-  s.description  = "Client for Sharepoint's REST API"
-  s.authors      = ['Michael Martin Moro']
-  s.email        = 'michael@unetresgrossebite.com'
-  s.files        = ['lib/sharepoint-ruby.rb',
-                    'lib/sharepoint-error.rb',
-                    'lib/sharepoint-session.rb',
-                    'lib/sharepoint-object.rb',
-                    'lib/sharepoint-types.rb',
-                    'lib/sharepoint-properties.rb',
-                    'lib/sharepoint-users.rb',
-                    'lib/sharepoint-lists.rb',
-                    'lib/sharepoint-files.rb',
-                    'lib/sharepoint-fields.rb',
-                    'lib/sharepoint-stringutils.rb',
-                    'lib/soap/authenticate.xml.erb',
-                    'lib/sharepoint-http-auth.rb',
-                    'lib/sharepoint-kerberos-auth.rb']
-  s.homepage     = 'https://github.com/Plaristote/sharepoint-ruby'
-  s.license      = 'BSD'
-  s.require_path = 'lib'
+require_relative 'lib/sharepoint-version'
 
+Gem::Specification.new do |s|
+  s.name = 'proof-sharepoint-ruby'
+  s.version = Sharepoint::VERSION
+  s.date = '2020-12-07'
+  s.summary = 'SharePoint client.'
+  s.description = "Client for Sharepoint's REST API forked from https://github.com/Plaristote/sharepoint-ruby"
+  s.authors = ['Marlen Brunner']
+  s.email = 'mbrunner@proofgov.com'
+  s.homepage = 'https://github.com/proofgov/sharepoint-ruby'
+  s.license = 'BSD'
+
+  s.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
+  s.metadata['homepage_uri'] = s.homepage
+  s.metadata['source_code_uri'] = 'https://github.com/proofgov/sharepoint-ruby'
+  s.metadata['changelog_uri'] = 'https://github.com/proofgov/sharepoint-ruby/blob/master/CHANGELOG.md'
+
+  s.require_path = 'lib'
+  s.files = Dir.chdir(File.expand_path(__dir__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  end
   s.add_runtime_dependency 'curb', '~> 0.8', '<= 0.9.10'
 end
