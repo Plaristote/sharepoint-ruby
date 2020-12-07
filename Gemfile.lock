@@ -1,0 +1,19 @@
+PATH
+  remote: .
+  specs:
+    proof-sharepoint-ruby (1.0.0)
+      curb (~> 0.8, <= 0.9.10)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    curb (0.9.10)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  proof-sharepoint-ruby!
+
+BUNDLED WITH
+   2.1.4
