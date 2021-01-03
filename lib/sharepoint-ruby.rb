@@ -1,24 +1,11 @@
 require 'curb'
 require 'json'
+require 'sharepoint-errors'
 require 'sharepoint-session'
 require 'sharepoint-object'
 require 'sharepoint-types'
 
 module Sharepoint
-  class SPException < Exception
-    def initialize data, uri = nil, body = nil
-      @data = data['error']
-      @uri  = uri
-      @body = body
-    end
-
-    def lang         ; @data['message']['lang']  ; end
-    def message      ; @data['message']['value'] ; end
-    def code         ; @data['code'] ; end
-    def uri          ; @uri ; end
-    def request_body ; @body ; end
-  end
-
   class Site
     attr_reader   :server_url
     attr_accessor :url, :protocol
@@ -83,13 +70,13 @@ module Sharepoint
       if !(skip_json || (result.body_str.nil? || result.body_str.empty?))
         begin
           data = JSON.parse result.body_str
-          raise Sharepoint::SPException.new data, uri, body unless data['error'].nil?
+          raise Sharepoint::DataError.new data, uri, body unless data['error'].nil?
           make_object_from_response data
         rescue JSON::ParserError => e
-          raise Exception.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+          raise Sharepoint::RequestError.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
         end
       elsif result.status.to_i >= 400
-        raise Exception.new("#{method.to_s.upcase} #{uri} responded with #{result.status}")
+        raise Sharepoint::RequestError.new("#{method.to_s.upcase} #{uri} responded with #{result.status}")
       else
         result.body_str
       end
@@ -121,10 +108,10 @@ module Sharepoint
       type_parts = type_name.split '.'
       type_name  = type_parts.pop
       constant   = Sharepoint
-      type_parts.each do |part| constant = constant.const_get part end
+      type_parts.each do |part| constant = constant.const_get(part, false) end
 
-      klass      = constant.const_get type_name rescue nil
-      if klass
+      if constant.const_defined? type_name
+        klass = constant.const_get type_name rescue nil
         klass.new self, data
       else
         Sharepoint::GenericSharepointObject.new type_name, self, data
