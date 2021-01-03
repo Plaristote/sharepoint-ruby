@@ -1,3 +1,4 @@
+require 'sharepoint-errors'
 require 'open-uri'
 require 'securerandom'
 
@@ -78,7 +79,7 @@ module Sharepoint
           new_position = (JSON.parse(result).dig('d', 'ContinueUpload') || JSON.parse(result).dig('d', 'StartUpload')).to_i
           bytes_written += data.size
           if new_position != bytes_written
-            raise Exception.new("Streamed #{bytes_written} bytes data, but sharepoint reports position #{new_position}")
+            raise Sharepoint::Error.new("Streamed #{bytes_written} bytes data, but sharepoint reports position #{new_position}")
           end
         end
       end
