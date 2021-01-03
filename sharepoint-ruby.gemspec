@@ -6,13 +6,7 @@ Gem::Specification.new do |s|
   s.description  = "Client for Sharepoint's REST API"
   s.authors      = ["Michael Martin Moro"]
   s.email        = 'michael@unetresgrossebite.com'
-  s.files        = ['lib/sharepoint-ruby.rb',   'lib/sharepoint-errors.rb', 'lib/sharepoint-session.rb',
-                    'lib/sharepoint-object.rb', 'lib/sharepoint-types.rb', 'lib/sharepoint-properties.rb',
-                    'lib/sharepoint-users.rb',  'lib/sharepoint-lists.rb', 'lib/sharepoint-files.rb', 'lib/sharepoint-fields.rb',
-                    'lib/sharepoint-stringutils.rb',
-                    'lib/soap/authenticate.xml.erb',
-                    'lib/sharepoint-http-auth.rb',
-                    'lib/sharepoint-kerberos-auth.rb']
+  s.files        = Dir["lib/**/*", "MIT-LICENSE", "README.md"]
   s.homepage     = 'https://github.com/Plaristote/sharepoint-ruby'
   s.license      = 'BSD'
   s.require_path = 'lib'
