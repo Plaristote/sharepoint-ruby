@@ -98,7 +98,7 @@ The `copy` method can duplicate an existing object. If you send it a Sharepoint:
 Some of the properties of the OData object are 'deferred', which means that the property only provides a link to a ressource that you would have to get for yourself.
 Not with the sharepoint-ruby gem however: the first time you try to access a deferred property, the object will on it's own go look for the corresponding remote ressource: the result will be stored for later uses, and then be returned to you.
 
-### Modifying Sharepoint's ressources
+### Modifying Sharepoint's resources
 The Sharepoint REST API provides us with methods to create, update or delete resources. In the Sharepoint::Object, these behaviours are implemented through the save and delete methods.
 
 ##### Updating objects
