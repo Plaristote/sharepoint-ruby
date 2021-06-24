@@ -79,7 +79,7 @@ module Sharepoint
 
     def get_deferred_property property_name
       deferred_data = @data[property_name]['__deferred']
-      uri           = deferred_data['uri'].gsub /^http.*\/_api\/web\//i, ''
+      uri           = deferred_data['uri'].gsub(/^http.*\/_api\/web\//i, '').gsub(/%27/, '%27%27')
       @site.query :get, uri
     end
 
