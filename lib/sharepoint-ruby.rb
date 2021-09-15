@@ -13,10 +13,11 @@ module Sharepoint
     attr_accessor :name
     attr_accessor :verbose
 
-    def initialize server_url, site_name
+    def initialize server_url, site_name, prefix: "sites"
       @server_url  = server_url
       @name        = site_name
-      @url         = "#{@server_url}/sites/#{@name}"
+      uri_prefix   = unless prefix.empty? then prefix + '/' else '' end
+      @url         = "#{@server_url}/#{uri_prefix}#{@name}"
       @session     = Session.new self
       @web_context = nil
       @protocol    = 'https'
