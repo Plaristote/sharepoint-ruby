@@ -44,7 +44,7 @@ module Sharepoint
               action += ',' unless params.keys.first == key
               action += key + '='
               action += (if (value.class < String) or (value.class < Symbol)
-               "'#{(URI.encode value.gsub("'", %q(\\\')))}'"
+               "'#{(CGI.escape value.gsub("'", %q(\\\')))}'"
               else
                 value
               end)
@@ -70,7 +70,7 @@ module Sharepoint
           if id =~ /^[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}$/
             self.query :get, "#{options[:getter]}(guid'#{id}')"
           else
-            self.query :get, "#{options[:get_from_name]}('#{URI.encode id}')"
+            self.query :get, "#{options[:get_from_name]}('#{CGI.escape id}')"
           end
         end
       end
@@ -83,7 +83,7 @@ module Sharepoint
           resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}"
         end
         define_singleton_method "get_from_#{resource_name}" do |resource, name|
-          resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}('#{URI.encode name}')"
+          resource.site.query :get, "#{resource.__metadata['uri']}/#{method_name}('#{CGI.escape name}')"
         end
         define_method "create_uri" do
           unless self.parent.nil?
