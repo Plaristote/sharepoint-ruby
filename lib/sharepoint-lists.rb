@@ -214,7 +214,7 @@ module Sharepoint
     belongs_to :view
 
     def add_view_field name
-      @site.query :post, "#{__metadata['uri']}/addviewfield('#{URI.encode name}')"
+      @site.query :post, "#{__metadata['uri']}/addviewfield('#{URI::Parser.new.escape name}')"
     end
 
     def move_view_field_to name, index
@@ -229,7 +229,7 @@ module Sharepoint
     end
 
     def remove_view_field name
-      @site.query :post, "#{__metadata['uri']}/removeviewfield('#{URI.encode name}')"
+      @site.query :post, "#{__metadata['uri']}/removeviewfield('#{URI::Parser.new.escape name}')"
     end
   end
 end
