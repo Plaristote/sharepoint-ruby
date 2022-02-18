@@ -157,7 +157,7 @@ module Sharepoint
       has_options = false
       options.each do |key,value|
         url += if has_options then '&' else '?' end
-        url += "$#{key}=#{URI::encode value.to_s}"
+        url += "$#{key}=#{CGI.escape value.to_s}"
         has_options = true
       end
       url
